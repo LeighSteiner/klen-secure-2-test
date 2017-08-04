@@ -45,7 +45,7 @@ function authMaster(){
 			 	let output = [];
 			 	return (req,res,next) => {
 			 		if(req.user){
-			 			console.log("IF")
+			 			
 					 		for (let k in secretLocation[this.id].authObject){
 						 		if (secretLocation[this.id].authObject[k](req.user.id)){
 						 			output.push(k);
@@ -60,7 +60,7 @@ function authMaster(){
 			 	}
 			 }
 
-			 authFailLogger(whichAuth){  //RETURNS a function which is a piece of middleware 
+			 authFailLogger(whichAuth){
 			 	return (req,res,next) => {
 				 	if (req.user){
 				 		if(secretLocation[this.id].authObject.hasOwnProperty(whichAuth)){
@@ -69,15 +69,18 @@ function authMaster(){
 				 			}else{
 				 				if (secretLocation[this.id].authFailLog[whichAuth]){
 				 					secretLocation[this.id].authFailLog[whichAuth].push(req.user.id);
+
+
 				 				}else{
 				 					secretLocation[this.id].authFailLog[whichAuth] = [req.user.id];
 				 				}
+				 				next(new Error('You do not have valid clearance'));
 				 			}
 				 		}else{
-				 			throw new Error('not a valid authorization check');
+				 			 next(new Error('not a valid authorization check'));
 				 		}
 				 	}else{
-			 			throw new Error('authFailLog: user is not logged in');
+			 			next(new Error('authFailLog: user is not logged in'));
 			 		}	
 			 	}
 			 }
