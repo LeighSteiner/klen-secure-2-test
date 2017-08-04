@@ -1,7 +1,7 @@
 {
-  "name": "boilermaker",
+  "name": "klen-secure-test",
   "version": "1.0.0",
-  "description": "Some boilerplate code to get you started - get shakin'!",
+  "description": "super basic routes to test klen-secure package!",
   "engines": {
     "node": ">= 7.0.0"
   },

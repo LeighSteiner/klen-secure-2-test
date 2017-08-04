@@ -12,6 +12,8 @@ const app = express()
 const socketio = require('socket.io')
 module.exports = app
 
+
+
 /**
  * In your development environment, you can keep all of your
  * app's secret API keys in a file called `secrets.js`, in your project
@@ -46,6 +48,8 @@ const createApp = () => {
   }))
   app.use(passport.initialize())
   app.use(passport.session())
+
+
 
   // auth and api routes
   app.use('/auth', require('./auth'))
