@@ -10,13 +10,21 @@ router.use(userAuthenticator.checkAuthorizations())
 
 
 router.get('/', (req, res, next) => {
-	
+
   User.findAll({
-    // explicitly select only the id and email fields - even though
-    // users' passwords are encrypted, it won't help if we just
-    // send everything to anyone who asks!
     attributes: ['id', 'email']
   })
     .then(users => res.json(users))
     .catch(next)
 })
+
+router.get('/siteControllerOnly', userAuthenticator.authFailLogger('isSiteController'), (req, res, next) => {
+	res.send('Welcome to the Site Controller Page!');
+})
+// http://localhost:8080/api/users/siteControllerOnly
+
+router.get('/ModsOnly', userAuthenticator.authFailLogger('isMod'), (req, res,next) => {
+	res.send('Welcome to the Mod Page!');
+})
+
+// http://localhost:8080/api/users/ModsOnly

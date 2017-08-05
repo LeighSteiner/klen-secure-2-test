@@ -7,37 +7,23 @@ function authMaster(){
 
 				this.id = secretId++
 				secretLocation[this.id] = {
-					authFailLog : {}, 
-					logViewBool : logViewBool || false //default setting is that you canNOT modify the log 
+					logViewBool : logViewBool || false, //default setting is that you canNOT modify the log 
+					viewAuthFailLog : this.viewAuthFailLog, 
+					getAuthFailLog : this.getAuthFailLog
 				};
 
-				// this.checkAuthorizations = this.checkAuthorizations.bind(this);
-				// this.authFailLogger = this.authFailLogger.bind(this);
-				// this.getAuthFailLog = this.getAuthFailLog.bind(this);
-				// this.viewAuthFailLog = this.viewAuthFailLog.bind(this);
-
 				this.modelAuthenticator = modelAuthenticator;
-				
+
+				secretLocation[this.id].authFailLog = {};
+
 				secretLocation[this.id].authObject = authObject || {  //can we contain the Sequelize in the authObj? 
-					 isUser : async (id) => {  ///REQUIRES NODE 7.6 
-						let user = await this.modelAuthenticator.findById(id)
-						return !!user;
-					}, 
-					// isThisUser : async function(id, targetId){},  //this doesn't work because it doesn't match
-					isMod : async (id) => {
-						let user = await this.modelAuthenticator.findById(id)
-						 return !!user.isMod;
-					},
-					isAdmin: async (id) =>{
-						let user = await this.modelAuthenticator.findById(id)
-						return !!user.isAdmin; 
-					},
-					isSiteController : async (id) => {
-						let user = await this.modelAuthenticator.findById(id)
-						return !!user.isSiteController;
-					} //make DRYer 
-					// isParticularClearance(id, clearanceStr){} //is this a better check ModelAuthenticator[clearanceStr]: true
+					isUser : (id) => { return true},
+					isMod : (id) => { return true},
+					isAdmin:  (id) => { return true}, 
+					isSiteController :  (id) => { return false}, 
+
 				}
+
 
 			}
 
@@ -45,14 +31,14 @@ function authMaster(){
 			 	let output = [];
 			 	return (req,res,next) => {
 			 		if(req.user){
-			 			
 					 		for (let k in secretLocation[this.id].authObject){
 						 		if (secretLocation[this.id].authObject[k](req.user.id)){
 						 			output.push(k);
 						 		}
-					 		req.user.clearances = output;
-					 		console.log('clearance: ',req.user.clearances)
-				 		} //check if req.user.clearances.contains(x)
+					 		
+				 		} 
+				 		req.user.clearances = output.filter((elem,ind)=> output.indexOf(elem) === ind);
+					 	console.log('clearance: ',req.user.clearances)
 				 		next();
 				 	}else{
 				 		next(new Error('checkAuth: user is not logged in'));
@@ -69,10 +55,11 @@ function authMaster(){
 				 			}else{
 				 				if (secretLocation[this.id].authFailLog[whichAuth]){
 				 					secretLocation[this.id].authFailLog[whichAuth].push(req.user.id);
-
+				 					console.log(secretLocation[this.id].authFailLog[whichAuth]);
 
 				 				}else{
 				 					secretLocation[this.id].authFailLog[whichAuth] = [req.user.id];
+				 					console.log(whichAuth, "Fail Log: ",secretLocation[this.id].authFailLog[whichAuth])
 				 				}
 				 				next(new Error('You do not have valid clearance'));
 				 			}
@@ -94,7 +81,7 @@ function authMaster(){
 			}
 
 			viewAuthFailLog(){
-				return secretLocation[this.id].authFailLog.toString();;
+				return JSON.stringify(secretLocation[this.id].authFailLog)
 			}
 		}
 	}
