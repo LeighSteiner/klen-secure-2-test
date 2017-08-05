@@ -72,6 +72,31 @@ function authMaster(){
 			 	}
 			 }
 			
+			singleRouteSecure(whichAuth){
+				return (req,res,next) => {
+					if (req.user){
+						if(secretLocation[this.id].authObject.hasOwnProperty(whichAuth)){
+							if(secretLocation[this.id].authObject[whichAuth](req.user.id)){
+								next();
+							}else{
+								if (secretLocation[this.id].authFailLog[whichAuth]){
+				 					secretLocation[this.id].authFailLog[whichAuth].push(req.user.id);
+				 					console.log(secretLocation[this.id].authFailLog[whichAuth]);
+
+				 				}else{
+				 					secretLocation[this.id].authFailLog[whichAuth] = [req.user.id];
+				 					console.log(whichAuth, "Fail Log: ",secretLocation[this.id].authFailLog[whichAuth])
+				 				}
+				 			}
+
+						}else{
+							next(new Error('singleRouteSecure: not a valid authorization check'))
+						}
+					}else{
+						next(new Error('singleRouteSecure: user is not logged in'));
+					}
+				}
+			}
 			getAuthFailLog(){
 				if(secretLocation[this.id].logViewBool){
 					return secretLocation[this.id].authFailLog;  //might allow for modification?  maybe is another param for function

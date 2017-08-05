@@ -28,3 +28,13 @@ router.get('/ModsOnly', userAuthenticator.authFailLogger('isMod'), (req, res,nex
 })
 
 // http://localhost:8080/api/users/ModsOnly
+
+router.get('/AdminsOnly', userAuthenticator.singleRouteSecure('isAdmin'), (req,res,next) => {
+	res.send('Hey, Admins! We just checked your security clearance RIGHT NOW!')
+})
+
+// router.get('/authFailLog', (req, res, next) => {
+// 	console.log("VIEW" ,viewAuthFailLog);
+// 	// let Log = viewAuthFailLog();
+// 	// res.send(Log);
+// })
