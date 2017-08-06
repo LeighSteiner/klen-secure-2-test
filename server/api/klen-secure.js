@@ -17,22 +17,34 @@ function authMaster(){
 				secretLocation[this.id].authFailLog = {};
 
 				secretLocation[this.id].authObject = authObject || {  //can we contain the Sequelize in the authObj? 
-					isUser : (id) => { return true},
-					isMod : (id) => { return true},
-					isAdmin:  (id) => { return true}, 
-					isSiteController :  (id) => { return false}, 
-
+					 isUser : async (id) => {                        // async await requires at least Node 7.6
+						let user = await this.modelAuthenticator.findById(id)
+						return !!user;
+					}, 
+					isMod : async (id) => {
+						let user = await this.modelAuthenticator.findById(id)
+						 return !!user.isMod;
+					},
+					isAdmin: async (id) =>{
+						let user = await this.modelAuthenticator.findById(id)
+						return !!user.isAdmin; 
+					},
+					isSiteController : async (id) => {
+						let user = await this.modelAuthenticator.findById(id)
+						return !!user.isSiteController;
+					}
 				}
 
 
 			}
 
-			 checkAuthorizations(){ 
+			checkAuthorizations(){ 
 			 	let output = [];
-			 	return (req,res,next) => {
+			 	return async (req,res,next) => {
 			 		if(req.user){
 					 		for (let k in secretLocation[this.id].authObject){
-						 		if (secretLocation[this.id].authObject[k](req.user.id)){
+					 			let test = await secretLocation[this.id].authObject[k](req.user.id);
+						 		if (test){
 						 			output.push(k);
 						 		}
 					 		
@@ -73,19 +85,23 @@ function authMaster(){
 			 }
 			
 			singleRouteSecure(whichAuth){
-				return (req,res,next) => {
+				return async (req,res,next) => {
 					if (req.user){
 						if(secretLocation[this.id].authObject.hasOwnProperty(whichAuth)){
-							if(secretLocation[this.id].authObject[whichAuth](req.user.id)){
+							let test = await secretLocation[this.id].authObject[whichAuth](req.user.id);
+							if(test){
+								console.log("single route",secretLocation[this.id].authObject[whichAuth](req.user.id))
 								next();
 							}else{
 								if (secretLocation[this.id].authFailLog[whichAuth]){
 				 					secretLocation[this.id].authFailLog[whichAuth].push(req.user.id);
 				 					console.log(secretLocation[this.id].authFailLog[whichAuth]);
+				 					next(new Error('single route: you do not have clearance'));
 
 				 				}else{
 				 					secretLocation[this.id].authFailLog[whichAuth] = [req.user.id];
 				 					console.log(whichAuth, "Fail Log: ",secretLocation[this.id].authFailLog[whichAuth])
+				 					next(new Error('single route: you do not have clearance'));
 				 				}
 				 			}
 
@@ -98,15 +114,23 @@ function authMaster(){
 				}
 			}
 			getAuthFailLog(){
-				if(secretLocation[this.id].logViewBool){
-					return secretLocation[this.id].authFailLog;  //might allow for modification?  maybe is another param for function
+				return (req, res, next) => {
+					console.log('logViewBool',secretLocation[this.id].logViewBool);
+					if(secretLocation[this.id].logViewBool){
+
+					req.user.authFailLog = secretLocation[this.id].authFailLog;
+					next();  
 				}else{
-					throw new Error('you cannot modify this log');
+					next(new Error('you cannot modify this log'));
+				}
 				}
 			}
 
 			viewAuthFailLog(){
-				return JSON.stringify(secretLocation[this.id].authFailLog)
+				return (req,res,next) => {
+					req.user.authFailLog = JSON.stringify(secretLocation[this.id].authFailLog);
+					next();
+				}
 			}
 		}
 	}
