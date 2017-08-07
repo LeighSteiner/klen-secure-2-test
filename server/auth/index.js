@@ -2,6 +2,9 @@ const router = require('express').Router()
 const User = require('../db/models/user')
 module.exports = router
 
+const klenSecure = require('klen-secure')();
+const userAuthenticator = new klenSecure(User);
+
 router.post('/login', (req, res, next) => {
   User.findOne({where: {email: req.body.email}})
     .then(user => {
@@ -28,7 +31,7 @@ router.post('/signup', (req, res, next) => {
     })
 })
 
-router.post('/logout', (req, res) => {
+router.post('/logout', userAuthenticator.signOutMiddleware(),(req, res) => {
   req.logout()
   res.redirect('/')
 })

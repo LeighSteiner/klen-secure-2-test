@@ -1,10 +1,10 @@
 const router = require('express').Router()
 const {User} = require('../db/models')
 module.exports = router
-const authMaster = require('klen-secure')();
+const klenSecure = require('klen-secure')();
 
 
-const userAuthenticator = new authMaster(User);
+const userAuthenticator = new klenSecure(User);
 
 router.use(userAuthenticator.checkAuthorizations())
 
