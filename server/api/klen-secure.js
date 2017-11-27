@@ -1,46 +1,44 @@
-//should koa-compatibility be a configuration setting?  like default express unless you pass config koa
-
-
 function klenSecure(){
-  return (function(){ 
-    const secretLocation = {};
-	let secretId = 0;
-	  return class {
-	    constructor(modelAuthenticator, authObject,logViewBool, config){
+	return (function(){
+		var secretLocation = {};
+		var secretId = 0;
+		return class {
+			constructor(modelAuthenticator, authObject, logViewBool, config){
 
-		  this.id = secretId++
-		  secretLocation[this.id] = {
-		    //logViewBool : logViewBool || false, //default setting is that you canNOT modify the log 
-			//viewAuthFailLog : this.viewAuthFailLog, 
-			getAuthFailLog : this.getAuthFailLog
-		   };
+				this.id = secretId++
+				secretLocation[this.id] = {
+					logViewBool : logViewBool || false, //default setting is that you canNOT modify the log 
+					getAuthFailLog : this.getAuthFailLog
+				};
 
-		  this.modelAuthenticator = modelAuthenticator;
+				this.modelAuthenticator = modelAuthenticator;
 
-		  secretLocation[this.id].authFailLog = {};
+				secretLocation[this.id].authFailLog = {};
 
-		  secretLocation[this.id].authObject = authObject || {  
-		    isUser : async (id) => {                        // async await requires at least Node 7.6
-			  let user = await this.modelAuthenticator.findById(id)
-			  return !!user;
-			}, 
-			isMod : async (id) => {
-			  let user = await this.modelAuthenticator.findById(id)
-			  return !!user.isMod;
-			},
-			isAdmin: async (id) =>{
-			  let user = await this.modelAuthenticator.findById(id)
-			  return !!user.isAdmin; 
-			},
-			isSiteController : async (id) => {
-			  let user = await this.modelAuthenticator.findById(id)
-			  return !!user.isSiteController;
+				secretLocation[this.id].authObject = authObject || {  
+					 isUser : async (id) => {                        // async await requires at least Node 7.6
+						let user = await this.modelAuthenticator.findById(id)
+						return !!user;
+					}, 
+					isMod : async (id) => {
+						let user = await this.modelAuthenticator.findById(id)
+						 return !!user.isMod;
+					},
+					isAdmin: async (id) =>{
+						let user = await this.modelAuthenticator.findById(id)
+						return !!user.isAdmin; 
+					},
+					isSiteController : async (id) => {
+						let user = await this.modelAuthenticator.findById(id)
+						return !!user.isSiteController;
+					}
+				}
+
+
 			}
-		  }
-		}
 
 		authFailLogger(whichAuth){
-		  return (req,res,next) => {
+		  return async (req,res,next) => {
 		    if (req.user){
 		      if(!req.user.clearances){ //this is now check authorizations
 		      	for (let k in secretLocation[this.id].authObject){
@@ -79,8 +77,7 @@ function klenSecure(){
 			}	
 		  }
 	    }
-
-		//add date time IP address, user info?  //add a ClearAuthFailLog?  and a SendLog?  
+			
 		getAuthFailLog(){
 		  return (req, res, next) => {
 		    if(secretLocation[this.id].logViewBool){
@@ -91,6 +88,9 @@ function klenSecure(){
 			}
 		  }
 		}
+
+		}
+	}
 	)();
 }
 module.exports = klenSecure;
