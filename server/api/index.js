@@ -2,11 +2,11 @@ const router = require('express').Router();
 const path = require('path');
 const {User} = require(path.join(__dirname, '../db/models'))
 module.exports = router;
-const authMaster = require('./klen-secure')();
+// const authMaster = require('./klen-secure')();
 
 
 
- const userAuthenticator = new authMaster(User);
+ // const userAuthenticator = new authMaster(User);
 
 
 

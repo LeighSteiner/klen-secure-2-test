@@ -1,7 +1,7 @@
 const router = require('express').Router()
 const {User} = require('../db/models')
 module.exports = router
-const klenSecure = require('klen-secure')();
+const klenSecure = require('./klen-secure')();
 
 
 const userAuthenticator = new klenSecure(User);

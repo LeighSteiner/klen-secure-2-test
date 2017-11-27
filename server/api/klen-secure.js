@@ -40,7 +40,9 @@ function klenSecure(){
 		authFailLogger(whichAuth){
 		  return async (req,res,next) => {
 		    if (req.user){
+		    	console.log('HEEEERE')
 		      if(!req.user.clearances){ //this is now check authorizations
+		      	let output = [];
 		      	for (let k in secretLocation[this.id].authObject){
 			      let authTest = await secretLocation[this.id].authObject[k](req.user.id);
 			      if (authTest){
@@ -48,7 +50,7 @@ function klenSecure(){
 				  }	
 			   } 
 		        req.user.clearances = output.filter((elem,ind)=> output.indexOf(elem) === ind);
-			    console.log('clearances: ',req.user.clearances)
+			    console.log('CLEARANCES: ',req.user.clearances)
 			    next();
 		      }
 			  if(secretLocation[this.id].authObject.hasOwnProperty(whichAuth)){
