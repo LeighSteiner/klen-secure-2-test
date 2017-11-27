@@ -6,12 +6,7 @@ const authMaster = require('./klen-secure')();
 
 
 
-  //klen-secure clearance check 
-
-// console.log(User);
- // const userAuthenticator = new authMaster(User);
-
- // router.use(userAuthenticator.checkAuthorizations())
+ const userAuthenticator = new authMaster(User);
 
 
 
