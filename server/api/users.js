@@ -4,7 +4,7 @@ module.exports = router
 const klenSecure = require('./klen-secure')();
 
 
-const userAuthenticator = new klenSecure(User);
+const userAuthenticator = new klenSecure(User, null, true);
 
 //router.use(userAuthenticator.checkAuthorizations())
 
@@ -19,18 +19,18 @@ router.get('/', (req, res, next) => {
 })
 
 router.get('/siteControllerOnly', userAuthenticator.authFailLogger('isSiteController'), (req, res, next) => {
-	res.send('Welcome to the Site Controller Page!');
+	res.json('Welcome to the Site Controller Page!')
 })
 
 
 router.get('/ModsOnly', userAuthenticator.authFailLogger('isMod'), (req, res,next) => {
-	res.send('Welcome to the Mod Page!');
+	res.json('Welcome to the Mod Page!')
 })
 
 
 router.get('/getAuthFailLog', userAuthenticator.getAuthFailLog(),(req, res, next) => {
 	let log = req.user.authFailLog
-	res.send(log);
+	res.json(log);
 })
 
 
