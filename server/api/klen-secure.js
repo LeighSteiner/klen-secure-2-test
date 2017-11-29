@@ -78,11 +78,19 @@ function klenSecure(){
           	  	throw new Error('user is not logged in')
           	  }
           	} catch(e){
-          	 // console.log(e)
-          	 next(e);
+          	 res.status(403).send(e.message)
+          	 
           	}
           }
 	    }
+	    /*
+         // error handling endware
+  app.use((err, req, res, next) => {
+    console.error(err)
+    console.error(err.stack)
+    res.status(err.status || 500).send(err.message || 'Internal server error.')
+  })
+	    */
 			
 		getAuthFailLog(){
 		  return (req, res, next) => {
