@@ -69,10 +69,10 @@ function klenSecure(){
                   	   secretLocation[this.id].authFailLog[whichAuth]= [failObj];
                   	   console.log(whichAuth, ' fail log: ', secretLocation[this.id].authFailLog[whichAuth])
                      }
-                   throw new Error('You do not have valid clearance to view ', whichAuth)
+                   throw new Error('You do not have valid clearance to view '+ whichAuth)
                   }
                 }else{
-                  throw new Error('not a valid authorization check: ', whichAuth)
+                  throw new Error('not a valid authorization check: '+ whichAuth)
                 }
           	  }else{
           	  	throw new Error('user is not logged in')
