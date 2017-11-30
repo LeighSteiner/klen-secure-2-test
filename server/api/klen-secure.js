@@ -78,7 +78,7 @@ function klenSecure(){
           	  	throw new Error('user is not logged in')
           	  }
           	} catch(e){
-          	 res.status(403).send(e.message)
+          	 res.status(403).send(e.message);
           	 
           	}
           }
@@ -86,12 +86,49 @@ function klenSecure(){
 			
 		getAuthFailLog(){
 		  return (req, res, next) => {
-		    if(secretLocation[this.id].logViewBool){
-			  req.user.authFailLog = secretLocation[this.id].authFailLog;
-			  next();  
-			}else{
-			  next(new Error('you cannot modify this log'));
-			}
+		    try{
+		      if(secretLocation[this.id].logViewBool){
+			    req.user.authFailLog = secretLocation[this.id].authFailLog;
+			    next();  
+			  }else{
+			    throw new Error('you cannot view this log');
+			  }
+		    }catch(e){
+		      res.status(403).send(e.message);
+		    }
+
+		  }
+		}
+
+
+//is this worth doing?
+		userFailLog(userId){
+		  return (req, res, next) => {
+            try{
+              if(secretLocation[this.id].logViewBool){
+                let UserFails = {};
+                for (let auth in secretLocation[this.id].authFailLog) {
+                  for (let i = 0; i < secretLocation[this.id][auth]; i++){
+                  	if(secretLocation[this.id][auth][i].user === userId){
+                  	 if (UserFails[auth]){
+                  	 	UserFails[auth]++
+                  	 }else{
+                  	   UserFails[auth] = 1;
+                  	 }
+                  	}
+                  }
+                }
+                //attach and next fail log
+                req.user.singleUserLog[userId] = UserFails;
+                console.log('USERFAILS', UserFails)
+                next();
+              }else{
+              	throw new Error('you cannot view this log')
+              }
+
+            }catch(e){
+              res.status(403).send(e.message);
+            }
 		  }
 		}
 

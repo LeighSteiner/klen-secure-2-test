@@ -33,6 +33,10 @@ router.get('/getAuthFailLog', userAuthenticator.getAuthFailLog(),(req, res, next
 	res.json(log);
 })
 
+router.get('/userFail', userAuthenticator.userFailLog(8), (req,res,next) => {
+	//let log = req.user.singleUserLog[8]
+	res.json('hi');
+})
 
 
 
