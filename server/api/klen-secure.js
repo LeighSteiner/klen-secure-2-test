@@ -100,35 +100,24 @@ function klenSecure(){
 		  }
 		}
 
-
-//is this worth doing?
-		userFailLog(userId){
+		clearAuthFailLog(){
 		  return (req, res, next) => {
-            try{
+		  	try{
               if(secretLocation[this.id].logViewBool){
-                let UserFails = {};
-                for (let auth in secretLocation[this.id].authFailLog) {
-                  for (let i = 0; i < secretLocation[this.id][auth]; i++){
-                  	if(secretLocation[this.id][auth][i].user === userId){
-                  	 if (UserFails[auth]){
-                  	 	UserFails[auth]++
-                  	 }else{
-                  	   UserFails[auth] = 1;
-                  	 }
-                  	}
-                  }
-                }
-                //attach and next fail log
-                req.user.singleUserLog[userId] = UserFails;
-                console.log('USERFAILS', UserFails)
-                next();
-              }else{
-              	throw new Error('you cannot view this log')
-              }
+			    secretLocation[this.id].authFailLog = 
+			    {lastCleared: {
+ 				    date: new Date(), 
+ 				    user: req.user.id
+			      }
+			    }
+			    next();
+			  }else{
+			    throw new Error('you cannot clear this log');
+			  }
+		  	}catch(e){
+		      res.status(403).send(e.message);
+		  	}
 
-            }catch(e){
-              res.status(403).send(e.message);
-            }
 		  }
 		}
 
